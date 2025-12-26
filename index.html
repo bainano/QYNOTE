@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QYNOTE</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <!-- 添加marked.js用于markdown解析 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部导航栏 -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">QYNOTE</h1>
+                <nav class="nav-tabs">
+                    <button id="notesTab" class="nav-tab active" data-view="notes">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <span>笔记</span>
+                    </button>
+                    <button id="todosTab" class="nav-tab" data-view="todos">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>待办事项</span>
+                    </button>
+                </nav>
+                <button id="themeToggle" class="theme-toggle" aria-label="切换主题">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- 笔记视图 -->
+        <main id="notesView" class="view active">
+            <div class="notes-container">
+                <!-- 笔记列表 -->
+                <div class="notes-sidebar">
+                    <div class="sidebar-header">
+                        <h2 class="sidebar-title">笔记</h2>
+                        <div class="header-actions">
+                            <button id="foldersBtn" class="add-button" aria-label="文件夹管理">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                            </button>
+                            <button id="newNoteBtn" class="add-button" aria-label="新建笔记">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- 文件夹筛选 -->
+                    <div class="notes-filter">
+                        <select id="folderFilter" class="folder-filter-select" aria-label="文件夹筛选">
+                            <option value="">所有文件夹</option>
+                            <!-- 文件夹选项将通过JavaScript动态添加 -->
+                        </select>
+                        <button id="clearFilterBtn" class="clear-filter-btn" aria-label="清除筛选" style="display: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="notesList" class="notes-list"></div>
+                </div>
+
+                <!-- 笔记编辑区域 -->
+                <div class="notes-editor-section">
+                    <div id="emptyNoteState" class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <div class="empty-state-text">选择一个笔记查看或创建新笔记</div>
+                    </div>
+                    
+                    <div id="noteEditor" class="note-editor" style="display: none;">
+                        <div class="editor-header">
+                            <input 
+                                type="text" 
+                                id="noteTitle" 
+                                class="note-title-input" 
+                                placeholder="笔记标题" 
+                                aria-label="笔记标题"
+                                autocomplete="off"
+                            >
+                            <div class="editor-actions">
+                                <div class="view-toggle">
+                                    <button id="editViewBtn" class="action-button secondary active">编辑</button>
+                                    <button id="previewViewBtn" class="action-button secondary">预览</button>
+                                </div>
+                                <button id="saveNoteBtn" class="action-button primary">保存</button>
+                                <button id="deleteNoteBtn" class="action-button secondary">删除</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 编辑模式 -->
+                        <div id="editMode" class="editor-mode active">
+                            <textarea 
+                                id="noteContent" 
+                                class="note-content-input" 
+                                placeholder="开始编写笔记...（支持Markdown格式）" 
+                                aria-label="笔记内容"
+                            ></textarea>
+                        </div>
+                        
+                        <!-- 预览模式 -->
+                        <div id="previewMode" class="editor-mode" style="display: none;">
+                            <div id="notePreview" class="note-preview"></div>
+                        </div>
+                        
+                        <!-- 关联的待办事项 -->
+                        <div class="note-todos-section">
+                            <h3 class="section-title">关联的待办事项</h3>
+                            <div class="note-todos-actions">
+                                <button id="addNoteTodoBtn" class="action-button secondary small">关联待办事项</button>
+                            </div>
+                            <div id="noteTodos" class="note-todos"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 待办事项视图 -->
+        <main id="todosView" class="view" style="display: none;">
+            <div class="container">
+                <!-- 待办事项输入区域 -->
+                <div class="input-section">
+                    <div class="input-container">
+                        <input 
+                            type="text" 
+                            id="todoInput" 
+                            class="todo-input" 
+                            placeholder="添加新的待办事项..." 
+                            aria-label="添加新的待办事项"
+                            autocomplete="off"
+                        >
+                        <button id="addTodo" class="add-button" aria-label="添加待办事项">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 待办事项列表 -->
+                <div class="main-content">
+                    <div class="stats" id="stats">
+                        <span class="stats-text">剩余 <strong id="remainingCount">0</strong> 项</span>
+                        <span class="stats-text">总共 <strong id="totalCount">0</strong> 项</span>
+                    </div>
+                    
+                    <ul id="todoList" class="todo-list" aria-label="待办事项列表"></ul>
+
+                    <!-- 操作按钮 -->
+                    <div class="actions" id="actions" style="display: none;">
+                        <button id="clearCompleted" class="action-button secondary">
+                            清除已完成
+                        </button>
+                        <button id="clearAll" class="action-button secondary">
+                            清空所有
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 编辑待办事项模态框 -->
+    <div id="editModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle" style="display: none;">
+        <div class="modal-content">
+            <h3 id="editModalTitle" class="modal-title">编辑待办事项</h3>
+            <input type="text" id="editInput" class="todo-input" placeholder="编辑待办事项..." aria-label="编辑待办事项">
+            <div class="modal-buttons">
+                <button id="cancelEdit" class="action-button secondary">取消</button>
+                <button id="saveEdit" class="action-button primary">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 关联笔记模态框 -->
+    <div id="linkNoteModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="linkNoteModalTitle" style="display: none;">
+        <div class="modal-content">
+            <h3 id="linkNoteModalTitle" class="modal-title">关联到笔记</h3>
+            <div class="modal-body">
+                <select id="noteSelect" class="note-select" aria-label="选择笔记">
+                    <!-- 笔记选项将通过JavaScript动态添加 -->
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button id="cancelLinkNote" class="action-button secondary">取消</button>
+                <button id="saveLinkNote" class="action-button primary">关联</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 关联待办事项模态框 -->
+    <div id="linkTodoModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="linkTodoModalTitle" style="display: none;">
+        <div class="modal-content">
+            <h3 id="linkTodoModalTitle" class="modal-title">关联待办事项</h3>
+            <div class="modal-body">
+                <div id="todoSelectList" class="todo-select-list">
+                    <!-- 待办事项选项将通过JavaScript动态添加 -->
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="cancelLinkTodo" class="action-button secondary">取消</button>
+                <button id="saveLinkTodo" class="action-button primary">关联</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 文件夹管理模态框 -->
+    <div id="foldersModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="foldersModalTitle" style="display: none;">
+        <div class="modal-content">
+            <h3 id="foldersModalTitle" class="modal-title">文件夹管理</h3>
+            <div class="modal-body folders-modal-body">
+                <!-- 创建文件夹按钮 -->
+                <div class="create-folder-section">
+                    <button id="createFolderBtn" class="action-button primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        创建文件夹
+                    </button>
+                </div>
+                
+                <!-- 文件夹列表 -->
+                <div class="folders-section">
+                    <h4 class="section-subtitle">文件夹列表</h4>
+                    <div id="foldersList" class="folders-list"></div>
+                </div>
+                
+                <!-- 笔记列表（用于拖拽） -->
+                <div class="folder-notes-section">
+                    <h4 class="section-subtitle">所有笔记</h4>
+                    <div id="folderNotesList" class="folder-notes-list"></div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="closeFoldersModal" class="action-button secondary">关闭</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 创建文件夹模态框 -->
+    <div id="createFolderModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="createFolderModalTitle" style="display: none;">
+        <div class="modal-content">
+            <h3 id="createFolderModalTitle" class="modal-title">创建文件夹</h3>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="folderName" class="form-label">文件夹名称 *</label>
+                    <input 
+                        type="text" 
+                        id="folderName" 
+                        class="form-input" 
+                        placeholder="输入文件夹名称" 
+                        aria-label="文件夹名称"
+                        autocomplete="off"
+                    >
+                    <div id="folderNameError" class="error-message"></div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="cancelCreateFolder" class="action-button secondary">取消</button>
+                <button id="saveCreateFolder" class="action-button primary">创建</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 重命名文件夹模态框 -->
+    <div id="renameFolderModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="renameFolderModalTitle" style="display: none;">
+        <div class="modal-content">
+            <h3 id="renameFolderModalTitle" class="modal-title">重命名文件夹</h3>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="renameFolderName" class="form-label">文件夹名称 *</label>
+                    <input 
+                        type="text" 
+                        id="renameFolderName" 
+                        class="form-input" 
+                        placeholder="输入新的文件夹名称" 
+                        aria-label="新的文件夹名称"
+                        autocomplete="off"
+                    >
+                    <div id="renameFolderNameError" class="error-message"></div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="cancelRenameFolder" class="action-button secondary">取消</button>
+                <button id="saveRenameFolder" class="action-button primary">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
