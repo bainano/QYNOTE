@@ -1,6 +1,6 @@
 # QYNOTE
 
-QYNOTE 是一个基于 Electron 开发的桌面笔记应用，提供简洁高效的笔记管理和待办事项功能。
+QYNOTE 是一个基于 HTML CSS JS Electron 开发的桌面笔记应用，提供简洁高效的笔记管理和待办事项功能。
 
 ## 功能特性
 
@@ -30,7 +30,7 @@ QYNOTE 是一个基于 Electron 开发的桌面笔记应用，提供简洁高效
 - **JavaScript**：交互逻辑
 - **Marked.js**：Markdown 解析
 
-## 安装
+## 自打包安装（release也提供了打包好的版本）
 
 ### 环境要求
 - Node.js 16.x 或更高版本
@@ -142,3 +142,4 @@ ISC
 
 
 **QYNOTE** - 让笔记更简单，让生活更高效！ 🚀
+
